@@ -8,7 +8,7 @@ date_default_timezone_set('America/Chicago');
 $moduleFolder = "";
 
 if (file_exists(getcwd() . "/../config/application.json")) {
-    $cfg = json_decode(file_get_contents(getcwd()  . "/../application.json"));
+    $cfg = json_decode(file_get_contents(getcwd()  . "/../config/application.json"));
 
     if (is_string($cfg->APP_MODULE_DIR)) {
         $moduleFolder = $cfg->APP_MODULE_DIR;

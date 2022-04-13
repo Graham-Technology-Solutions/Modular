@@ -5,7 +5,7 @@ use Mpdf\Tag\P;
 
 class DatabaseHandler {
     public static function GET_APP_CFG() {
-        return json_decode(file_get_contents(__DIR__."/../../application.json"));
+        return json_decode(file_get_contents(getcwd() ."/config/application.json"));
     }
 
     public static function GET_PDO() {

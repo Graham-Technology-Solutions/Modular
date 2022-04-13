@@ -7,8 +7,8 @@ date_default_timezone_set('America/Chicago');
 
 $moduleFolder = "";
 
-if (file_exists(__dir__ . "/../application.json")) {
-    $cfg = json_decode(file_get_contents(__dir__ . "/../application.json"));
+if (file_exists(getcwd() . "/config/application.json")) {
+    $cfg = json_decode(file_get_contents(getcwd()  . "/../application.json"));
 
     if (is_string($cfg->APP_MODULE_DIR)) {
         $moduleFolder = $cfg->APP_MODULE_DIR;
@@ -18,7 +18,7 @@ if (file_exists(__dir__ . "/../application.json")) {
     }
 }
 
-$modDir = __dir__ . "/../" . $moduleFolder;
+$modDir = getcwd() . "/src/" . $moduleFolder;
 
 //Scan the modules directory for potential modules
 $modules = array_diff(scandir($modDir), array('.', '..'));
@@ -101,7 +101,7 @@ class Modular {
         $this->loadModules();
 
         $this->MP_DIR = __DIR__; //dirname(__FILE__);
-        $this->MOD_DIR = $this->MP_DIR . "/../" . $this->APP_MODULE_DIR;
+        $this->MOD_DIR = getcwd()  . "/src/" . $this->APP_MODULE_DIR;
 
         $this->Modules = array_merge($this->Modules, array("_ModularPHP" => $this));
 
@@ -112,7 +112,7 @@ class Modular {
     }
 
     private function loadConfig() {
-        $filePath = __DIR__ . "/../application.json";
+        $filePath = getcwd() . "/config/application.json";
         if(file_exists($filePath)) {
             $cfg = json_decode(file_get_contents($filePath));
             $this->Config = $cfg;
@@ -249,15 +249,15 @@ class Modular {
                     $this->loadComponent($thisRoute, $rtVars);
                 } else {
                     if(MPHelper::contains(".twig", $thisRoute["template"])) {
-                        $loader = new \Twig\Loader\FilesystemLoader(__dir__ . "/../" . $this->APP_MODULE_DIR . "/" . $thisRoute["mod"] . "/" . $modDir);
+                        $loader = new \Twig\Loader\FilesystemLoader(getcwd()  . "/src/" . $this->APP_MODULE_DIR . "/" . $thisRoute["mod"] . "/" . $modDir);
                         $twig = new \Twig\Environment($loader, [
-                            'cache' => __dir__.'/ModularPHP/cache',
+                            'cache' => getcwd() .'/var/cache',
                         ]);
 
                         echo $twig->render('index.html', $this->Modules);
 
                     } else {
-                        include(__dir__ . "/../" . $this->APP_MODULE_DIR . "/" . $thisRoute["template"]);
+                        include(getcwd() . "/src/" . $this->APP_MODULE_DIR . "/" . $thisRoute["template"]);
                     }
                 }
             }
@@ -274,15 +274,15 @@ class Modular {
                 $this->loadComponent($thisRoute);
             } else {
                 if(\Modular\MHelper::contains(".twig", $thisRoute["template"])) {
-                    $loader = new \Twig\Loader\FilesystemLoader(__dir__ . "/../" . $this->APP_MODULE_DIR . "/" . $thisRoute["mod"] . "/". $modDir);
+                    $loader = new \Twig\Loader\FilesystemLoader(getcwd() . "/src/" . $this->APP_MODULE_DIR . "/" . $thisRoute["mod"] . "/". $modDir);
                     $twig = new \Twig\Environment($loader, [
-                        'cache' => __dir__.'/../cache',
+                        'cache' => getcwd() .'/var/cache',
                     ]);
 
                     echo $twig->render($thisRoute["template"], $this->Modules);
 
                 } else {
-                    include(__dir__ . "/../" . $this->APP_MODULE_DIR . "/" . $thisRoute["template"]);
+                    include(getcwd()  . "/src/" . $this->APP_MODULE_DIR . "/" . $thisRoute["template"]);
                 }
 
             }

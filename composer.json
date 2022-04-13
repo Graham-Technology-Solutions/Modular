@@ -1,7 +1,7 @@
 {
     "name": "djgraham00/modular",
-    "description": "Boilerplate package for creating other packages.",
-    "keywords": ["template", "composer", "package"],
+    "description": "PHP web application development framework based around the concept of re-usable \"modules\".",
+    "keywords": ["php", "framework", "modular"],
     "license": "MIT",
     "authors": [
         {

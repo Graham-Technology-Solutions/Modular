@@ -23,7 +23,7 @@
     },
 	"autoload": {
         "psr-4": {
-            "Modular\\": ["src/", "src/classes/*"]
+            "Modular\\": ["src/*"]
         }
     }
 }

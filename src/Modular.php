@@ -2,55 +2,6 @@
 
 namespace Modular;
 
-/* Set the default timezone to CST */
-date_default_timezone_set('America/Chicago');
-
-$moduleFolder = "";
-
-if (file_exists(getcwd() . "/../config/application.json")) {
-    $cfg = json_decode(file_get_contents(getcwd()  . "/../config/application.json"));
-
-    if (is_string($cfg->APP_MODULE_DIR)) {
-        $moduleFolder = $cfg->APP_MODULE_DIR;
-    } else {
-        echo "APPLICATION FAILED TO START; INVALID MODULE DIRECTORY";
-        exit;
-    }
-}
-
-$modDir = getcwd() . "/../src/" . $moduleFolder;
-
-//Scan the modules directory for potential modules
-$modules = array_diff(scandir($modDir), array('.', '..'));
-
-//Create an array to store the loaded modules
-$mods = array();
-
-//Loop through the potential modules
-foreach ($modules as $mod) {
-    //Check if a configuration file exists for the module
-    if (file_exists("$modDir/$mod/$mod.json")) {
-
-        //If so, decode the configuration
-        $moduleInfo = json_decode(file_get_contents("$modDir/$mod/$mod.json"));
-
-
-        //Then, import the main class for that module
-        require("$modDir/$mod/" . $moduleInfo->MOD_FILE);
-
-        //Also, add the module information to the loaded module array
-        $mods[$mod] = $moduleInfo;
-
-        //Next, require the database modules if any exist for the given module
-        if (isset($moduleInfo->MOD_HAS_MODELS) && $moduleInfo->MOD_HAS_MODELS == true && isset($moduleInfo->MOD_MODEL_DIR)) {
-            foreach ((array_diff(scandir("$modDir/$mod/{$moduleInfo->MOD_MODEL_DIR}"), array('.', '..'))) as $dbmodel) {
-                require("$modDir/$mod/{$moduleInfo->MOD_MODEL_DIR}/$dbmodel");
-            }
-        }
-
-    }
-}
-
 
 /*
  *
@@ -83,8 +34,11 @@ class Modular {
     public $MOD_DIR;
     public $Config;
 
+    private $lm;
+
     public function __construct()
     {
+        $this->requireMods();
         //Load the application configuration
         $this->loadConfig();
 
@@ -104,6 +58,60 @@ class Modular {
         $this->MOD_DIR = getcwd()  . "/../src/" . $this->APP_MODULE_DIR;
 
         $this->Modules = array_merge($this->Modules, array("_ModularPHP" => $this));
+
+    }
+
+    private function requireMods () {
+        /* Set the default timezone to CST */
+        date_default_timezone_set('America/Chicago');
+
+        $moduleFolder = "";
+
+
+        if (file_exists(getcwd() . "/../config/application.json")) {
+            $cfg = json_decode(file_get_contents(getcwd()  . "/../config/application.json"));
+
+            if (is_string($cfg->APP_MODULE_DIR)) {
+                $moduleFolder = $cfg->APP_MODULE_DIR;
+            } else {
+                echo "APPLICATION FAILED TO START; INVALID MODULE DIRECTORY";
+                exit;
+            }
+        }
+
+        $modDir = getcwd() . "/../src/" . $moduleFolder;
+
+        //Scan the modules directory for potential modules
+        $modules = array_diff(scandir($modDir), array('.', '..'));
+
+        //Create an array to store the loaded modules
+        $mods = array();
+
+        //Loop through the potential modules
+        foreach ($modules as $mod) {
+            //Check if a configuration file exists for the module
+            if (file_exists("$modDir/$mod/$mod.json")) {
+
+                //If so, decode the configuration
+                $moduleInfo = json_decode(file_get_contents("$modDir/$mod/$mod.json"));
+
+
+                //Then, import the main class for that module
+                require("$modDir/$mod/" . $moduleInfo->MOD_FILE);
+                //Also, add the module information to the loaded module array
+                $mods[$mod] = $moduleInfo;
+
+                //Next, require the database modules if any exist for the given module
+                if (isset($moduleInfo->MOD_HAS_MODELS) && $moduleInfo->MOD_HAS_MODELS == true && isset($moduleInfo->MOD_MODEL_DIR)) {
+                    foreach ((array_diff(scandir("$modDir/$mod/{$moduleInfo->MOD_MODEL_DIR}"), array('.', '..'))) as $dbmodel) {
+                        require("$modDir/$mod/{$moduleInfo->MOD_MODEL_DIR}/$dbmodel");
+                    }
+                }
+
+            }
+        }
+
+        $this->lm = $mods;
 
     }
 
@@ -127,7 +135,7 @@ class Modular {
     }
 
     private function loadModules() {
-        global $mods;
+        $mods = $this->lm;
 
         foreach ($mods as $modName=>$modInfo) {
 
@@ -145,7 +153,7 @@ class Modular {
 
     private function loadModule($modName) {
 
-        global $mods;
+        $mods = $this->lm;
 
         if(!in_array($modName, $this->loadedModNames)) {
 

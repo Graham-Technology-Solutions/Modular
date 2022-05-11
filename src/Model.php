@@ -84,7 +84,7 @@ class Model {
     public function generateInsertVal()
     {
         $fieldsStr = "";
-        $count = 1;
+        $count = 0;
         foreach ($this as $f => $v) {
 
             $safeVal = addslashes($v);

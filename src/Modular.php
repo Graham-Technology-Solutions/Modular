@@ -2,7 +2,6 @@
 
 namespace Modular;
 
-
 /*
  *
  * Modular Base Class
